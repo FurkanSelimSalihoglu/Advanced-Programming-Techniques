@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Event listeners</title>
+  </head>
+
+  <body>
+    <div>
+      <h1>Battery status</h1>
+
+      <section class="main-content">
+        <p>Battery level is <b id="battery-level"></b></p>
+
+        <p>Battery status is <b id="charging-status"></b><b>charging</b></p>
+      </section>
+    </div>
+    <div>
+      <h1>Online status</h1>
+      <p>connected: <b id="online-browser"></b></p>
+      <section class="main-content"></section>
+    </div>
+    <div>
+      <h1>  Keyboard</h1>
+    </p>
+    <input type="text" id="key" placeholder="Write here">
+    <p id="status"></p>
+    </div>
+
+    <script src="battery.js"></script>
+    <script>
+      document.getElementById("online-browser").innerHTML = navigator.onLine
+        ? "online"
+        : "offline";
+    </script>
+    <script>
+      var key_pressed = document.getElementById("key");
+
+      key_pressed.addEventListener("keydown", onKeyDown);
+      key_pressed.addEventListener("keypress", onKeyPress);
+      key_pressed.addEventListener("keyup", onKeyUp);
+
+      function onKeyDown(event) {
+        document.getElementById("status").innerHTML =
+          "keydown: " + event.key + "<br>";
+      }
+      function onKeyPress(event) {
+        document.getElementById("status").innerHTML +=
+          "keypress: " + event.key + "<br>";
+      }
+      function onKeyUp(event) {
+        document.getElementById("status").innerHTML +=
+          "keyup: " + event.key + "<br>";
+      }
+    </script>
+  </body>
+</html>

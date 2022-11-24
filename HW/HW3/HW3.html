@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HW3</title>
+    <style>
+      canvas {
+        border:2px solid black ;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <button id="start" onclick="start()">Start</button>
+      <button id="pause" onclick="pause()">Pause</button>
+      <button id="start" onclick="stop()">Stop</button>
+      <button id="next" onclick="next()" disabled>Next</button>
+      <button id="prev" onclick="prev()" disabled>Previous</button>
+    </div>
+
+    <script>
+      var active = true;
+      var firstRun = false;
+      var change = false;
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      var i = 1;
+      var myImageArr = new Array();
+      var limit = 0;
+      var op = setInterval(function () {
+        if (active) {
+          i++;
+          limit += 10;
+        }
+        if (firstRun) {
+          i = 1;
+          firstRun = false;
+        }
+
+        if (i > 10) {
+          i = 1;
+        }
+        if (limit > 500) {
+          limit = 0;
+        }
+        ctx.clearRect(0, 0, limit, canvas.height);
+        ctx.drawImage(myImageArr[i], limit, 80, 80, 80);
+      }, 100);
+      function getImages() {
+        for (let i = 1; i <= 10; i++) {
+          fetch(
+            "https://raw.githubusercontent.com/FurkanSelimSalihoglu/sprites/main/" +
+              i +
+              ".JPG"
+          )
+            .then((response) => response.blob())
+            .then((blob) => {
+              let myIMG = URL.createObjectURL(blob);
+              let img = new Image();
+              img.src = myIMG;
+              myImageArr.push(img);
+            });
+        }
+      }
+      function play() {
+        document.body.append(canvas);
+        canvas.width = 500;
+        canvas.height = 200;
+        setInterval(op, 100);
+      }
+      function pause() {
+        if (active) {
+          change = true;
+          active = false;
+        } else {
+          change = false;
+          active = true;
+        }
+        if (change) {
+          document.getElementById("next").removeAttribute("disabled");
+          document.getElementById("prev").removeAttribute("disabled");
+        } else {
+          document.getElementById("next").setAttribute("disabled", "disabled");
+          document.getElementById("prev").setAttribute("disabled", "disabled");
+        }
+      }
+      function start() {
+        firstRun = true;
+        active = true;
+        limit = 0;
+        document.getElementById("next").setAttribute("disabled", "disabled");
+        document.getElementById("prev").setAttribute("disabled", "disabled");
+      }
+      function stop() {
+        active = false;
+        change = true;
+        if (change) {
+          document.getElementById("next").removeAttribute("disabled");
+          document.getElementById("prev").removeAttribute("disabled");
+        }
+      }
+
+      function next() {
+        i++;
+        limit += 10;
+        if (i > 10) {
+          i = 1;
+        }
+        if (limit > 500) {
+          limit = 0;
+        }
+      }
+      function prev() {
+        limit -= 10;
+        i--;
+        if (i < 1) {
+          i = 10;
+        }
+        if (limit < 0) {
+          limit = 500;
+        }
+      }
+
+      getImages();
+      play();
+    </script>
+  </body>
+</html>
