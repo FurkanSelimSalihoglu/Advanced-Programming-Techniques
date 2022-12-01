@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width">
+  <title>GitHub Users</title>
+  <style>
+    .space { margin-top: 300px; }
+    body {
+        max-width: 440px;
+        
+    }
+    img {
+        padding-right: 12px; 
+        width: 400px;
+        height: 400px   ;
+        float: left;
+    }
+    pre { overflow-x: auto; }
+    #out { color:black; }
+  </style>
+</head>
+
+<body>
+
+<h2 id="title">GitHub Users</h2>
+<input type="text" id="usr" value="FurkanSelimSalihoglu" onchange="readUser()">
+<p id="out"><img src="./GitHub Users_files/115596479"><br><br><br><br><br><br><br><br><br><br><br>FurkanSelimSalihoglu<br><br>Fatih Sultan Mehmet Vakıf Üniversitesi<br>İstanbul</p>
+<hr>
+<b>Sample code</b>
+<pre id="sample">async function toJSON(url) {<br>  try {<br>    let r = await fetch(url)<br>    if (!r.ok) throw cause(r.status)<br>    return r.json()<br>  } catch (e) {<br>    error(e)<br>  }<br>}<br>async function readUser() {<br>    const URL = "https://api.github.com/users/"<br>    const BR = '&lt;BR&gt;'<br>    let t=''<br>    let s=''<br>    let u = await toJSON(URL+usr.value)<br>    if (!u || !u.login) return<br>    out.style.color = ''<br>    //start with avatar<br>    out.innerHTML =`&lt;img src="${u.avatar_url}"&gt;`<br>    //add name and location<br>    if (u.name)  s = `&lt;span style="color: #ff0000 ; font-size: 150%"&gt;${u.name}&lt;/span&gt;`<br>    <br>    out.innerHTML +=BR+BR+BR+BR+BR+BR+BR+BR+BR+BR+ s<br>    if (u.login)  out.innerHTML +=BR+u.login+BR<br>    //organizasyon yoktu çok boş gözükmesin diye company ekledim <br>    if (u.company)  out.innerHTML +=BR+u.company<br>    if (u.location) out.innerHTML +=BR+u.location<br>    if (u.email) out.innerHTML +=BR+ <br>    `&lt;a href="${u.email}" target=NewTab&gt;${u.email}&lt;/a&gt;`<br>    if (u.blog) out.innerHTML +=BR+ <br>    `&lt;a href="${u.blog}" target=NewTab&gt;${u.blog}&lt;/a&gt;`<br>  <br>   <br>}</pre>
+<hr>
+
+
+<script>
+"use strict";
+function error(e) {
+    out.innerText = e
+    out.style.color = 'red'
+    console.error(e)
+}
+
+function cause(s) {
+  switch (s) {
+    case 403:
+      return 'Rate limit exceeded'
+    case 404:
+      return usr.value+' not found'
+    default:
+      return 'Status '+s
+  }
+}
+async function toJSON(url) {
+  try {
+    let r = await fetch(url)
+    if (!r.ok) throw cause(r.status)
+    return r.json()
+  } catch (e) {
+    error(e)
+  }
+}
+async function readUser() {
+    const URL = "https://api.github.com/users/"
+    const BR = '<BR>'
+    let t=''
+    let s=''
+    let u = await toJSON(URL+usr.value)
+    if (!u || !u.login) return
+    out.style.color = ''
+    out.innerHTML =`<img src="${u.avatar_url}">`
+    if (u.name)  s = `<span style="color: #ff0000 ; font-size: 150%">${u.name}</span>`
+    
+    out.innerHTML +=BR+BR+BR+BR+BR+BR+BR+BR+BR+BR+ s
+    if (u.login)  out.innerHTML +=BR+u.login
+    if (u.company)  out.innerHTML +=BR+u.company
+    if (u.location) out.innerHTML +=BR+u.location
+    out.innerHTML +=BR+URL+usr.value
+
+    
+   
+}
+    title.innerText = document.title
+    sample.innerText = toJSON +'\n'+ readUser
+    readUser()
+</script>
+</body></html>
