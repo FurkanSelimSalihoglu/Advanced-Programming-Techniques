@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" href="https://www.pngfind.com/pngs/m/273-2733257_icon-weather-portal-comments-weather-icons-png-white.png">
+  <title>Open Weather API</title>
+  <style>
+    body {
+        max-width: 450px;
+        margin: 0;
+    }
+    div {
+        display: inline-block;
+        margin: 12px;
+        vertical-align: top;
+    }
+    p { margin: 0; }
+    b { font-size: 18px; }
+    pre {
+        overflow-x: auto;
+        font-size: 14px;
+    }
+    .dar { width: 42%; }
+    #main {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 20px;
+        text-align: center;    
+        background: #9cf;
+        font-size: 24px;
+        margin: 0;
+    }
+    #yer { margin: 10px; }
+    #err { color:red }
+    svg {
+        background: white;
+        font: 10px arial, sans-serif;
+    }
+    rect {
+      fill: rgb(174, 221, 223);
+      stroke: rgb(47, 150, 7);
+      stroke-width: 5
+    }
+    line {
+        stroke: rgb(9, 15, 112);
+        stroke-width:2;
+      }
+    #map{
+        height: 300px;
+        width: 440px;
+        margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+<div>
+  Lat/Lon <input id=mahal type=text value="41 29">
+</div>
+
+<div id=main>
+<p id=yer>location</p>
+<p><img id=icon>
+<span id=hava>weather</span></p>
+</div>
+<canvas id="myCanvas" width="448" height="150" style="border:1px solid #d3d3d3;" ></canvas>
+<div class=darlik>
+  <b>Detail</b>
+  <pre id=detay>detail</pre>
+</div>
+<div class=darlik>
+  <b>Sun</b>
+  <pre id=gunes>sunrise</pre>
+</div>
+<div id=map></div>
+
+<hr />
+<div>
+<p id=err>openweathermap.org sitesinden API key ihtiyacınız var.
+  <a href="https://openweathermap.org/appid" 
+   target="NewTab">here</a> 
+</p>
+</div>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script>
+"use strict";
+function toHM(time) { 
+    let h = (time%86400)/3600  
+    let m = (h%1)*60        
+    let twoDigits = time => (time<10? '0' : '')+Math.trunc(time)
+    return twoDigits(h)+":"+twoDigits(m+0.5) 
+}
+async function toJSON(url) {
+    let r = await fetch(url)
+    if (!r.ok) error(r.statusText)
+    return r.json()
+}
+
+var lat, lon;  
+var Map
+function showMap(){
+    let p = {lat:41, lng:29}
+    console.log('init at', p)
+    //L is global object from leaflet
+    Map=L.map('map').setView(p, 10) //setZoom(10)
+    let u = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    let attribution = '&copy; OpenStreetMap contributors'
+    L.tileLayer(u, {attribution}).addTo(Map)
+}
+showMap()  
+var popup = L.popup()
+        .setLatLng([41, 29])
+        .setContent('Istanbul')
+        .openOn(Map);
+function onMapClick(e) {
+    popup
+        .setLatLng(e.latlng)
+        .openOn(Map);
+        lat = e.latlng.lat;
+        lon = e.latlng.lng;
+        askWeather();
+}
+Map.on('click', onMapClick);
+
+function askMap(la, ln){
+    Map.setView([la,ln], 10)
+}
+async function lokasyonal() {
+    let name = 'geolocation'
+    let result = await navigator.permissions.query({name})
+    if (result.state == 'denied') {
+        let url = "https://ipinfo.io/json"
+        toJSON(url).then(getLocation2, error)
+    } else  {
+        navigator.geolocation
+        .getCurrentPosition(getLocation1, error);
+    }
+}
+function getLocation2(parameter) { 
+    console.log("ipinfo.io", parameter.city)
+    let [x, y] = parameter.loc.split(',')
+    lat = Number(x); lon = Number(y); 
+    askWeather()
+}
+function getLocation1(p) { 
+    console.log("getCurrentPosition")
+    lat = p.coords.latitude; lon = p.coords.longitude;
+    askWeather()
+}
+var accessKey;
+async function askWeather() {
+    console.log(lat, lon); 
+    const U = "https://api.openweathermap.org/data/2.5/weather?"
+    let url = U+"lat="+lat+"&lon="+lon+"&APPID="+accessKey;
+    hava.innerText = "getting weather"
+    detay.innerText = ''
+    gunes.innerText = ''
+    let data = await toJSON(url)
+
+    let w = data.weather[0]; showIcon(w.icon)
+    let celsius = convert(data.main.temp).toFixed(0)
+    let hh = w.main+"  "+celsius+"°", {sys} = data
+    let yy = data.name+', '+sys.country
+    hava.innerText = hh; yer.innerText = yy
+    lat = data.coord.lat; lon = data.coord.lon
+    mahal.value = lat.toFixed(2)+", "+lon.toFixed(2)
+    let wind = (3.6*data.wind.speed).toFixed(0)
+    let pres = (0.750062*data.main.pressure).toFixed(0)
+    const WIND = ['N','NE','E','SE','S','SW','W','NW','N']
+    let d = (data.wind.deg/45).toFixed(0)
+    detay.innerText = hh 
+        +'\nWind  '+wind+' km/h '+WIND[d]
+        +'\nPressure  '+pres+' mm'
+        +'\nHumidity  %'+data.main.humidity
+    let {sunrise, sunset} = sys, noon = (sunrise+sunset)/2
+    gunes.innerText = 'Rise '+toHM(sunrise+data.timezone)
+        +'\nNoon '+toHM(noon+data.timezone)
+        +'\nSet  '+toHM(sunset+data.timezone)
+        +'\nZone '+(data.timezone/3600)
+    console.log(hh, yy, 'Wind '+data.wind.deg+'° '+WIND[d])
+    make_Location(yy)
+    make_Result(hh)
+    askMap(lat,lon)
+}
+function showIcon(i) {
+   
+    const URL = "https://openweathermap.org/img/w/"
+    icon.src = URL+i+".png"
+    document.querySelector('link').href = icon.src
+    make_image(URL+i+".png");
+}
+function convert(kelvin){
+    return (kelvin - 273.15);
+   
+}
+// Interaction
+function askUser() {
+    let k = prompt('Please enter openweather key:')
+    if (!k) error('You need an API key')
+    return k
+}
+function error(e) {
+    main.style.display = "none"; 
+   
+    err.style.display = '';
+    throw e
+}
+function getAPIkey() {
+    if (origin.startsWith('http') && localStorage) {
+        if (!localStorage.keys) localStorage.keys = '{}'
+        let keys = JSON.parse(localStorage.keys)
+        if (!keys.openweather) {
+           keys.openweather = askUser()
+           localStorage.keys = JSON.stringify(keys)
+        }
+        accessKey = keys.openweather
+    } else { //cannot use localStorage
+        accessKey = askUser()
+    }
+}
+    err.style.display = "none"
+    getAPIkey();lokasyonal ()
+mahal.onkeyup = e => {
+  let t = e.target
+  if (e.keyCode === 13) {
+    [lat, lon] = mahal.value.split(/[ ,]+/)
+    askWeather()
+  }
+  if (e.keyCode === 27) t.blur()
+}
+var c = document.getElementById('myCanvas');
+var ctx = c.getContext("2d");
+
+
+function make_image(imageSrc) {
+ctx.beginPath();
+ctx.stroke();
+  let base_image = new Image();
+  base_image.src = imageSrc;
+  base_image.onload = function() {
+    ctx.drawImage(base_image, 155, 65,50,50); 
+  }
+}
+function make_Result(Result) {
+    ctx.font='24px Calibri'
+    ctx.fillText(Result,200,120);
+  }
+function make_Location(Location) {
+    ctx.font='24px Calibri'
+    ctx.fillText(Location,165,55);
+}
+
+
+</script>
+
+</body>
+</html>
