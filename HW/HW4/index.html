@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Games</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
+</head>
+
+<body>
+    <div class="canvasContainer">
+        <div class="gameEnd none" id="gameEnd">
+            <button onclick="restartGame()">Restart Game</button>
+        </div>
+        <div class="gameStart" id="gameStart">
+            <br />
+            <button onclick="startGame()">Start Playing</button>
+        </div>
+        <canvas class="game" id="gameCanvas"></canvas>
+    </div>
+</body>
