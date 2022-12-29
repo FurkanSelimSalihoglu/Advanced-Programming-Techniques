@@ -1,3 +1,6 @@
+body{
+  margin: 0px;
+}
 .canvasContainer{
   margin: 0 auto;
   text-align: center;
@@ -6,6 +9,14 @@
 }
 .canvasContainer canvas{
   border: 0.5px solid #DDD;
+}
+.canvasContainer .score{
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.5em;
+  left: 0px;
+  top: 0px;
+  width: 100%;
 }
 .gameEnd,.gameStart{
   position: absolute;
