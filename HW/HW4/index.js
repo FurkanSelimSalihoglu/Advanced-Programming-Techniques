@@ -32,7 +32,16 @@ document.addEventListener("DOMContentLoaded",function(){
   gameContext.lineWidth = 0.5;
   initGame();
 },null);
+function playMusic() {
+  var musicElement = document.getElementById("music");
+  musicElement.play();
+}
 
+function stopMusic() {
+  var musicElement = document.getElementById("music");
+  musicElement.pause();
+  musicElement.currentTime = 0;
+}
 function addRow() {
   var black_index = Math.floor(Math.random()*config.cols);
   var tile_width = config.width/config.cols;
@@ -98,6 +107,7 @@ function displayRow(row) {
     }
     function startGameLoop() {
       gameLoop = setInterval(function(){
+        playMusic();
         displayAllRow();
       },config.interval);
     }
@@ -109,6 +119,7 @@ function displayRow(row) {
     }
 
     function stopGameLoop() {
+      stopMusic();
       clearInterval(gameLoop);
       gameCanvas.removeEventListener("click",handleGameUserInput);
       endGameElement.style.display="block";
